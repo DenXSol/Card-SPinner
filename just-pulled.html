@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gacha Card Generator - Just Pulled</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
+@font-face {
+  font-family: 'Space Grotesk Local';
+  src: url('https://raw.githubusercontent.com/DenXSol/Card-SPinner/main/assets/Fonts/static/SpaceGrotesk-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: block;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: #fff; min-height: 100vh; padding: 0; }
 .nav-bar { background: #000; border-bottom: 1px solid #2a2a2a; padding: 0; }
@@ -26,13 +30,13 @@ h1 { font-size: 22px; font-weight: 700; margin-bottom: 1.5rem; color: #b3f000; l
 .layer-label { font-size: 13px; color: #aaa; margin-bottom: 6px; font-weight: 500; }
 .layer-sub { font-size: 11px; color: #555; margin-bottom: 6px; }
 label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
-input[type=text], input[type=number] { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 14px; outline: none; transition: border 0.15s; }
-input:focus { border-color: #b3f000; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+input[type=text], input[type=number], textarea { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 14px; outline: none; transition: border 0.15s; font-family: inherit; resize: vertical; }
+input:focus, textarea:focus { border-color: #b3f000; }
+.quick-panel { border-color: #b3f000; }
+.url-note { font-size: 11px; color: #b3f000; margin-top: 6px; min-height: 15px; word-break: break-word; }
 .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .mult-wrap { display: flex; align-items: center; gap: 8px; }
 .auto-badge { font-size: 10px; color: #b3f000; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.divider { border: none; border-top: 1px solid #2a2a2a; margin: 1.5rem 0; }
 .gen-btn { width: 100%; background: #b3f000; color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.15s; }
 .gen-btn:hover { background: #c8f500; }
 .preview-wrap p { font-size: 11px; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -57,6 +61,18 @@ canvas { width: 100%; max-width: 420px; border-radius: 8px; border: 1px solid #2
   </nav>
 
   <h1>🃏 Just Pulled Generator</h1>
+
+  <div class="panel quick-panel">
+    <div style="font-size:13px;font-weight:600;color:#b3f000;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">⚡ Quick paste (optional)</div>
+    <div class="layer-row">
+      <div class="layer-body">
+        <div class="layer-label">Paste ALL</div>
+        <div class="layer-sub">Copy the whole GachaBot message from Slack and paste it here — price, worth, multiplier and card image fill in below automatically. Or skip this and fill the fields manually.</div>
+        <textarea id="pasteAll" rows="3" placeholder="$132 MESPRIT won from $30 play by 0x.../ nft id 400442 (email) https://imagedelivery.net/.../original" oninput="onPasteAll()"></textarea>
+        <div class="url-note" id="pasteAllNote"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="panel">
     <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Background</div>
@@ -107,6 +123,17 @@ canvas { width: 100%; max-width: 420px; border-radius: 8px; border: 1px solid #2
     </div>
   </div>
 
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Overlays (baked, always on top)</div>
+    <div class="layer-row">
+      <div class="layer-num">4</div>
+      <div class="layer-body">
+        <div class="layer-label">PSA frame + white lens flare</div>
+        <div class="layer-sub">Loaded automatically from /assets/overlays/ — sits above the card &amp; text</div>
+      </div>
+    </div>
+  </div>
+
   <div class="status" id="status"></div>
   <button class="gen-btn" onclick="generate()">⚡ Generate Just Pulled card</button>
 
@@ -127,6 +154,10 @@ const ASSET_BASE = 'https://raw.githubusercontent.com/DenXSol/Card-SPinner/main/
 // Slot coords — pulled directly from the Figma frame (Frame 2147225648, 1122x1402)
 const CARD_SLOT = { x: 227.5, y: 428.86, w: 684.76, h: 1129.49, radius: 20 };
 
+// Lens flare — Figma box was 553x553 rotated 180°, opacity 46%; exported PNG is 482x553 (trimmed)
+const FLARE_BOX = { x: 640, y: 152, w: 553, h: 553 };
+const FLARE_OPACITY = 0.46;
+
 // Text row — all elements share the same vertical center (y=313) in the 1122x1402 canvas
 const ROW_CENTER_Y = 313;
 const PRICE_X = 292;   // left edge, "card price" number
@@ -134,13 +165,24 @@ const WORTH_X = 510;   // left edge, "card worth" number
 const MULT_X = 715;    // left edge, multiplier badge
 const ARROW_X1 = 427, ARROW_X2 = 493; // arrow spans this gap between price and worth
 
-const FONT_FAMILY = "'Space Grotesk', sans-serif";
+const FONT_FAMILY = "'Space Grotesk Local', sans-serif";
 const PRICE_FONT_SIZE = 50;
 const MULT_FONT_SIZE = 60;
 const MULT_COLOR = '#e1ff19';
 
 let assetCache = {};
 let userEditedMult = false;
+let fontReady = null;
+
+function ensureFont() {
+  if (!fontReady) {
+    fontReady = Promise.all([
+      document.fonts.load(`700 50px ${FONT_FAMILY}`),
+      document.fonts.load(`700 60px ${FONT_FAMILY}`)
+    ]).then(() => document.fonts.ready);
+  }
+  return fontReady;
+}
 
 function loadImg(url) {
   return new Promise((resolve, reject) => {
@@ -152,8 +194,8 @@ function loadImg(url) {
   });
 }
 
-function loadTemplate(name) {
-  const url = `${ASSET_BASE}/backgrounds/${name}`;
+function loadAsset(path) {
+  const url = `${ASSET_BASE}/${path}`;
   if (assetCache[url]) return Promise.resolve(assetCache[url]);
   return loadImg(url).then(img => { assetCache[url] = img; return img; });
 }
@@ -175,6 +217,41 @@ function recalc() {
 function onMultEdit() {
   userEditedMult = true;
   document.getElementById('autoBadge').textContent = 'manual';
+}
+
+// ── "Paste ALL" — parses the raw GachaBot Slack message ────────────────────
+// e.g. "$132 MESPRIT won from $30 play by 0x.../ nft id 400442 (email) https://imagedelivery.net/.../original (edited)"
+// Not anchored to start/end, and skips over anything (mailto markdown, wallet address,
+// "(edited)", etc.) between "play" and the first real URL — so noise around the
+// pattern doesn't matter, only the pattern itself has to be present somewhere in the paste.
+const PULL_RE = /\$([\d,]+\.?\d*)\s+(.+?)\s+won from\s+\$([\d,]+\.?\d*)\s+play\b[\s\S]*?(https?:\/\/\S+)/i;
+
+function onPasteAll() {
+  const raw = document.getElementById('pasteAll').value;
+  const note = document.getElementById('pasteAllNote');
+  if (!raw.trim()) { note.textContent = ''; return; }
+
+  const m = raw.match(PULL_RE);
+  if (!m) {
+    note.textContent = '⚠ Could not find "$X NAME won from $Y play ... https://..." in that text';
+    note.style.color = '#f05050';
+    return;
+  }
+
+  const worth = m[1].replace(/,/g, '');
+  const cardName = m[2].trim();
+  const price = m[3].replace(/,/g, '');
+  const url = m[4].trim().replace(/[)\]>,.]+$/, ''); // trim trailing punctuation Slack sometimes leaves stuck to the URL
+
+  document.getElementById('packPrice').value = price;
+  document.getElementById('cardWorth').value = worth;
+  document.getElementById('cardUrl').value = url;
+  userEditedMult = false;
+  document.getElementById('autoBadge').textContent = 'auto';
+  recalc();
+
+  note.style.color = '#b3f000';
+  note.textContent = `✓ Parsed: ${cardName} — $${price} → $${worth}`;
 }
 
 function setStatus(msg, type) {
@@ -213,7 +290,6 @@ function drawArrow(ctx) {
   ctx.moveTo(ARROW_X1, ROW_CENTER_Y);
   ctx.lineTo(ARROW_X2 - headLen * 0.6, ROW_CENTER_Y);
   ctx.stroke();
-  // arrowhead
   ctx.beginPath();
   ctx.moveTo(ARROW_X2, ROW_CENTER_Y);
   ctx.lineTo(ARROW_X2 - headLen, ROW_CENTER_Y - headLen * 0.6);
@@ -233,21 +309,40 @@ function fitText(ctx, text, maxWidth, startSize, weight) {
   return size;
 }
 
+// Draw the PSA-frame overlay stretched over the card slot (matches its aspect ratio closely)
+function drawPsaFrame(ctx, img) {
+  ctx.drawImage(img, CARD_SLOT.x, CARD_SLOT.y, CARD_SLOT.w, CARD_SLOT.h);
+}
+
+// Draw the lens flare centered on its original Figma box, rotated 180°, at 46% opacity
+function drawLensFlare(ctx, img) {
+  const cx = FLARE_BOX.x + FLARE_BOX.w / 2;
+  const cy = FLARE_BOX.y + FLARE_BOX.h / 2;
+  ctx.save();
+  ctx.globalAlpha = FLARE_OPACITY;
+  ctx.translate(cx, cy);
+  ctx.rotate(Math.PI); // 180°
+  ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+  ctx.restore();
+}
+
 async function drawJustPulled() {
+  await ensureFont();
+
   const canvas = document.getElementById('cJP');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, 1122, 1402);
 
-  // 1. baked background (title, flares, GACHA logo)
-  ctx.drawImage(await loadTemplate('JP1.png'), 0, 0, 1122, 1402);
+  // 1. baked background (title, flares, GACHA logo) — BASE layer
+  ctx.drawImage(await loadAsset('backgrounds/JP1.png'), 0, 0, 1122, 1402);
 
-  // 2. card image
+  // 2. card image — MIDDLE layer
   const url = document.getElementById('cardUrl').value.trim();
   if (!url) throw 'Please paste a card image URL';
   const card = await loadImg(url);
   placeCard(ctx, card, CARD_SLOT);
 
-  // 3. price text (left aligned at PRICE_X)
+  // 3. price / arrow / worth / multiplier text — MIDDLE layer
   const priceText = fmtMoney(document.getElementById('packPrice').value);
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
@@ -255,17 +350,14 @@ async function drawJustPulled() {
   ctx.font = `700 ${PRICE_FONT_SIZE}px ${FONT_FAMILY}`;
   ctx.fillText(priceText, PRICE_X, ROW_CENTER_Y);
 
-  // 4. arrow
   drawArrow(ctx);
 
-  // 5. worth text — shrink to fit if it would collide with the multiplier badge
   const worthText = fmtMoney(document.getElementById('cardWorth').value);
   const maxWorthWidth = MULT_X - WORTH_X - 20;
   const worthSize = fitText(ctx, worthText, maxWorthWidth, PRICE_FONT_SIZE, 700);
   ctx.font = `700 ${worthSize}px ${FONT_FAMILY}`;
   ctx.fillText(worthText, WORTH_X, ROW_CENTER_Y);
 
-  // 6. multiplier badge
   const multText = (document.getElementById('multiplier').value || '1X').toUpperCase();
   ctx.font = `700 ${MULT_FONT_SIZE}px ${FONT_FAMILY}`;
   ctx.save();
@@ -274,6 +366,13 @@ async function drawJustPulled() {
   ctx.fillStyle = MULT_COLOR;
   ctx.fillText(multText, MULT_X, ROW_CENTER_Y);
   ctx.restore();
+
+  // 4. TOP layers — overlays, in order: PSA frame, then white lens flare
+  const psaFrame = await loadAsset('overlays/PSAframe.png');
+  drawPsaFrame(ctx, psaFrame);
+
+  const lensFlare = await loadAsset('overlays/white%20lens%20flare%20light.png');
+  drawLensFlare(ctx, lensFlare);
 }
 
 async function generate() {
