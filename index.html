@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card-SPinner Hub</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: #fff; }
+
+/* Navigation Bar */
+.nav-bar {
+  background: #000;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 0;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  height: 70px;
+  padding: 0 2rem;
+  gap: 2rem;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.nav-tab {
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.05em;
+}
+
+.nav-tab:hover {
+  border-color: #b3f000;
+  color: #b3f000;
+}
+
+.nav-tab.active {
+  border-color: #b3f000;
+  color: #000;
+  background: #b3f000;
+  font-weight: 700;
+}
+
+.action-btn {
+  background: #b3f000;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+}
+
+.action-btn:hover {
+  background: #c8f500;
+}
+
+/* Page Content */
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.page h1 {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  letter-spacing: -2px;
+}
+
+.page h1 .highlight {
+  color: #b3f000;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 3rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.feature-card h3 {
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+  color: #b3f000;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: #aaa;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.feature-card .btn {
+  background: #111;
+  border: 1px solid #333;
+  color: #b3f000;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.feature-card .btn:hover {
+  border-color: #b3f000;
+  background: #1a2200;
+}
+
+.status-msg {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.code-block {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #0f0;
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="nav-bar">
+  <div class="nav-container">
+    <div class="nav-tabs">
+      <a href="javascript:void(0)" onclick="showPage('spinner')" class="nav-tab active" id="tab-spinner">
+        🎰 Card Spinner
+      </a>
+      <a href="javascript:void(0)" onclick="showPage('generator')" class="nav-tab" id="tab-generator">
+        ⚡ Card Generator
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Spinner Page -->
+<div id="page-spinner" class="page active">
+  <h1>Card <span class="highlight">Spinner</span></h1>
+  <p class="page-subtitle">Interactive card flip & animation tool</p>
+  
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>🎯 Features</h3>
+      <p>Flip cards with smooth animations, customize speed and playback, adjust card position and size with precision controls.</p>
+      <a href="index.html" class="btn">Open Spinner →</a>
+    </div>
+    
+    <div class="feature-card">
+      <h3>📊 Best For</h3>
+      <p>Creating animated card reveal videos, testing card display layouts, building Gacha pull previews and streaming content.</p>
+    </div>
+    
+    <div class="feature-card">
+      <h3>⚙️ Controls</h3>
+      <p>Adjust speed (slow/normal/fast), playback controls (play/pause), card positioning, sizing, corner radius, and more.</p>
+    </div>
+  </div>
+
+  <div class="status-msg">
+    <strong>💡 Tip:</strong> Use the spinner to preview how your pulled cards will animate. Export as video or GIF for social media.
+  </div>
+</div>
+
+<!-- Generator Page -->
+<div id="page-generator" class="page">
+  <h1>Card <span class="highlight">Generator</span></h1>
+  <p class="page-subtitle">Create pack reveal & IG crop cards with estimated values</p>
+  
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>📸 Pack Reveal</h3>
+      <p>Generate beautiful 1254×1254 cards showing a pulled collectible on top of the pack tier background ($25 to $1000).</p>
+    </div>
+    
+    <div class="feature-card">
+      <h3>📱 IG Crop</h3>
+      <p>Create Instagram-ready cards with the card image, Gacha overlay banner, and estimated value display in one shot.</p>
+    </div>
+    
+    <div class="feature-card">
+      <h3>💾 Download Ready</h3>
+      <p>Both cards export as high-quality PNG files optimized for social media sharing. Use them instantly on Instagram, Twitter, TikTok.</p>
+    </div>
+  </div>
+
+  <div class="feature-card" style="margin-top: 2rem;">
+    <h3>🚀 Get Started</h3>
+    <p>Open the Card Generator and follow these steps:</p>
+    <div class="code-block">
+1. Select a pack tier ($25, $30, $42, $50, $67, $100, $250, $1000)
+2. Upload or paste a card image URL
+3. (Optional) Enter estimated card value
+4. Click "Generate both cards"
+5. Download and share!
+    </div>
+    <a href="card-generator.html" class="btn" style="margin-top: 1.5rem;">Open Generator →</a>
+  </div>
+
+  <div class="status-msg">
+    <strong>🎨 Asset Structure:</strong> Images load from GitHub assets folder (raw.githubusercontent.com). All pack tiers, overlays, and backgrounds are stored in `/assets/bases/`, `/assets/overlays/`, and `/assets/backgrounds/`.
+  </div>
+</div>
+
+<script>
+function showPage(pageName) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+  
+  // Show selected page
+  document.getElementById('page-' + pageName).classList.add('active');
+  document.getElementById('tab-' + pageName).classList.add('active');
+}
+</script>
+
+</body>
+</html>

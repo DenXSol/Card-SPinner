@@ -1,0 +1,548 @@
+<!--
+  GACHA CARD GENERATOR – GitHub Asset Version
+  
+  This version loads images from /assets/ folder instead of using base64 data.
+  
+  Folder structure required in repo:
+    assets/
+      ├── bases/
+      │   ├── 25.png, 30.png, 42.png, 50.png, 67.png, 100.png, 250.png, 1000.png
+      ├── overlays/
+      │   └── ig_overlay.png
+      └── backgrounds/
+          └── ig_base.png
+  
+  Images load from: https://raw.githubusercontent.com/DenXSol/Card-SPinner/main/assets/
+  
+  Key differences from base64 version:
+  - File size: 1.5MB → ~100KB
+  - Images loaded on-demand (faster initial load)
+  - Asset URLs are configurable (see ASSET_BASE below)
+  - Real PNG transparency for ig_overlay (no black→transparent conversion needed)
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gacha Card Generator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: #fff; min-height: 100vh; padding: 0; }
+
+/* Navigation Bar */
+.nav-bar {
+  background: #000;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 0;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  height: 70px;
+  padding: 0 2rem;
+  gap: 2rem;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.nav-tab {
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.nav-tab:hover {
+  border-color: #b3f000;
+  color: #b3f000;
+}
+
+.nav-tab.active {
+  border-color: #b3f000;
+  color: #000;
+  background: #b3f000;
+  font-weight: 700;
+}
+
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 1.5rem; color: #b3f000; letter-spacing: -0.5px; }
+.app { max-width: 960px; margin: 0 auto; padding: 2rem; }
+.panel { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.panel h2 { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.layer-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1.25rem; }
+.layer-row:last-child { margin-bottom: 0; }
+.layer-num { width: 28px; height: 28px; border-radius: 50%; background: #b3f000; color: #000; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.layer-body { flex: 1; }
+.layer-label { font-size: 13px; color: #aaa; margin-bottom: 6px; font-weight: 500; }
+.layer-sub { font-size: 11px; color: #555; margin-bottom: 6px; }
+label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+input[type=text], input[type=number] { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 14px; outline: none; transition: border 0.15s; }
+input:focus { border-color: #b3f000; }
+.url-note { font-size: 11px; color: #b3f000; margin-top: 4px; min-height: 15px; word-break: break-all; }
+.tab-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.tab { background: transparent; border: 1px solid #2a2a2a; border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #666; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.tab.active { border-color: #b3f000; color: #b3f000; }
+.upload-area { border: 1px dashed #333; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; font-size: 13px; color: #555; background: #111; transition: all 0.15s; }
+.upload-area:hover { border-color: #b3f000; color: #aaa; }
+.pack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pack-btn { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 6px; cursor: pointer; text-align: center; font-size: 14px; color: #666; transition: all 0.15s; font-family: inherit; }
+.pack-btn:hover { border-color: #b3f000; color: #ccc; }
+.pack-btn.active { border-color: #b3f000; color: #b3f000; background: #1a2200; font-weight: 700; }
+.divider { border: none; border-top: 1px solid #2a2a2a; margin: 1.5rem 0; }
+.gen-btn { width: 100%; background: #b3f000; color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.gen-btn:hover { background: #c8f500; }
+.preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.preview-wrap p { font-size: 11px; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+canvas { width: 100%; border-radius: 8px; border: 1px solid #2a2a2a; display: block; }
+.dl-btn { width: 100%; background: #111; border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: 13px; color: #b3f000; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: inherit; transition: all 0.15s; }
+.dl-btn:hover { background: #1a1a1a; border-color: #b3f000; }
+.status { font-size: 13px; color: #555; margin: 10px 0 6px; min-height: 18px; }
+.status.ok { color: #b3f000; }
+.status.err { color: #f05050; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Navigation Tabs -->
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <div class="nav-tabs">
+        <a href="spinner.html" class="nav-tab">🎰 Card Spinner</a>
+        <a href="card-generator.html" class="nav-tab active">⚡ Card Generator</a>
+      </div>
+    </div>
+  </nav>
+
+  <h1>⚡ Gacha Card Generator</h1>
+
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Pack reveal</div>
+
+    <div class="layer-row">
+      <div class="layer-num">1</div>
+      <div class="layer-body">
+        <div class="layer-label">Pack tier background</div>
+        <div class="layer-sub">Selects the correct background template</div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; font-weight: 600;">Pokémon</div>
+          <div class="pack-grid" id="packGrid">
+            <button class="pack-btn" data-price="25">$25</button>
+            <button class="pack-btn" data-price="30">$30</button>
+            <button class="pack-btn" data-price="42">$42</button>
+            <button class="pack-btn" data-price="67">$67</button>
+            <button class="pack-btn" data-price="100">$100</button>
+            <button class="pack-btn active" data-price="250">$250</button>
+            <button class="pack-btn" data-price="1000">$1000</button>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #2a2a2a; padding-top: 1.25rem;">
+          <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; font-weight: 600;">One Piece</div>
+          <div class="pack-grid" id="opPackGrid">
+            <button class="pack-btn" data-price="op50">OP $50</button>
+            <button class="pack-btn" data-price="op99">OP $99</button>
+            <button class="pack-btn" data-price="op250">OP $250</button>
+            <button class="pack-btn" data-price="op500">OP $500</button>
+            <button class="pack-btn" data-price="op1500">OP $1500</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-num">2</div>
+      <div class="layer-body">
+        <div class="layer-label">Card image</div>
+        <div class="tab-row">
+          <button class="tab active" onclick="switchPackTab('url',this)">Paste URL</button>
+          <button class="tab" onclick="switchPackTab('upload',this)">Upload file</button>
+        </div>
+        <div id="packTabUrl">
+          <input type="text" id="packCardUrl" placeholder="https://imagedelivery.net/..." oninput="onUrlInput(this,'packUrlNote')" />
+          <div class="url-note" id="packUrlNote"></div>
+        </div>
+        <div id="packTabUpload" style="display:none;">
+          <div class="upload-area" onclick="document.getElementById('packFileIn').click()">↑ Click to upload card image</div>
+          <input type="file" id="packFileIn" accept="image/*" style="display:none;" onchange="handleFile(event,'pack')" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">IG crop — 4 layers</div>
+
+    <div class="layer-row">
+      <div class="layer-num">1</div>
+      <div class="layer-body">
+        <div class="layer-label">Base background</div>
+        <div class="layer-sub">Gray background with G logo, GACHA watermark, yellow stripe — baked in</div>
+        <div style="font-size:12px;color:#b3f000;">✓ Loading from GitHub assets...</div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-num">2</div>
+      <div class="layer-body">
+        <div class="layer-label">Card image</div>
+        <div class="tab-row">
+          <button class="tab active" onclick="switchIgTab('url',this)">Paste URL</button>
+          <button class="tab" onclick="switchIgTab('upload',this)">Upload file</button>
+        </div>
+        <div id="igTabUrl">
+          <input type="text" id="igCardUrl" placeholder="Leave blank to reuse pack card URL" oninput="onUrlInput(this,'igUrlNote')" />
+          <div class="url-note" id="igUrlNote"></div>
+        </div>
+        <div id="igTabUpload" style="display:none;">
+          <div class="upload-area" onclick="document.getElementById('igFileIn').click()">↑ Click to upload card image</div>
+          <input type="file" id="igFileIn" accept="image/*" style="display:none;" onchange="handleFile(event,'ig')" />
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-num">3</div>
+      <div class="layer-body">
+        <div class="layer-label">Green price overlay</div>
+        <div class="layer-sub">ESTIMATED VALUE banner + GACHA logo with real transparency</div>
+        <div style="font-size:12px;color:#b3f000;">✓ Template loaded</div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-num">4</div>
+      <div class="layer-body">
+        <div class="layer-label">Estimated value</div>
+        <div style="max-width:200px;margin-top:4px;">
+          <input type="number" id="estVal" value="570" min="0" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+  <button class="gen-btn" onclick="generate()">⚡ Generate both cards</button>
+
+  <div class="panel" style="margin-top:1.5rem;">
+    <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;">Output</div>
+    <div class="preview-grid">
+      <div class="preview-wrap">
+        <p>Pack reveal (1254 × 1254)</p>
+        <canvas id="cPack" width="1254" height="1254"></canvas>
+        <button class="dl-btn" onclick="dl('cPack','gacha-pack-reveal')">↓ Download pack reveal</button>
+      </div>
+      <div class="preview-wrap">
+        <p>IG crop (1254 × 1254)</p>
+        <canvas id="cIG" width="1254" height="1254"></canvas>
+        <button class="dl-btn" onclick="dl('cIG','gacha-ig-crop')">↓ Download IG crop</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Configuration ────────────────────────────────
+// Asset base URL — change this if deploying elsewhere
+const ASSET_BASE = 'https://raw.githubusercontent.com/DenXSol/Card-SPinner/main/assets';
+
+// Card placement coordinates (in pixels, 1254×1254 canvas)
+// These are precise coordinates from Figma design
+const PACK_CARD = { x: 210, y: 221, w: 543, h: 951 };
+const IG_CARD = { x: 78, y: -562, w: 1176, h: 2060 };
+const IG_PRICE = { x: 123, baselineY: 1191, maxW: 700, fontSize: 180 };
+
+// ── State ────────────────────────────────────────
+let selectedPack = '250';
+let packTab = 'url', igTab = 'url';
+let packCardImg = null, igCardImg = null;
+let overlayCanvas = null;
+let assetCache = {}; // Cache loaded images
+
+// ── Pack grid event handlers ──────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Handle Pokémon pack selection
+  document.getElementById('packGrid').addEventListener('click', (e) => {
+    if (e.target.classList.contains('pack-btn')) {
+      document.querySelectorAll('.pack-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      selectedPack = e.target.dataset.price;
+      packCardImg = null; // Reset to force reload
+    }
+  });
+  
+  // Handle OP (One Piece) pack selection
+  document.getElementById('opPackGrid').addEventListener('click', (e) => {
+    if (e.target.classList.contains('pack-btn')) {
+      document.querySelectorAll('.pack-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      selectedPack = e.target.dataset.price;
+      packCardImg = null; // Reset to force reload
+    }
+  });
+});
+
+// ── Tab switching ────────────────────────────────
+function switchPackTab(tab, btn) {
+  packTab = tab;
+  btn.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('packTabUrl').style.display = tab === 'url' ? 'block' : 'none';
+  document.getElementById('packTabUpload').style.display = tab === 'upload' ? 'block' : 'none';
+}
+
+function switchIgTab(tab, btn) {
+  igTab = tab;
+  btn.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('igTabUrl').style.display = tab === 'url' ? 'block' : 'none';
+  document.getElementById('igTabUpload').style.display = tab === 'upload' ? 'block' : 'none';
+}
+
+// ── File upload ──────────────────────────────────
+function handleFile(event, type) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      if (type === 'pack') packCardImg = img;
+      else igCardImg = img;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── URL validation ───────────────────────────────
+function onUrlInput(el, noteId) {
+  const url = el.value.trim();
+  const note = document.getElementById(noteId);
+  if (url) {
+    note.textContent = '✓ Ready to load: ' + url.slice(0, 50) + '...';
+  } else {
+    note.textContent = '';
+  }
+}
+
+function normalizeUrl(url) {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return 'https://' + url;
+}
+
+// ── Image loading from GitHub ────────────────────
+function loadUrl(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject('Failed to load image: ' + url);
+    img.src = url;
+  });
+}
+
+// Load template from /assets/ folder
+function loadTemplate(filename) {
+  // Determine folder based on filename
+  let folder = 'bases';
+  if (filename === 'ig_base') folder = 'backgrounds';
+  if (filename === 'ig_overlay') folder = 'overlays';
+  
+  // Add .png if needed
+  const name = filename.includes('.png') ? filename : filename + '.png';
+  const url = `${ASSET_BASE}/${folder}/${name}`;
+  
+  // Check cache
+  if (assetCache[url]) {
+    return Promise.resolve(assetCache[url]);
+  }
+  
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      assetCache[url] = img;
+      resolve(img);
+    };
+    img.onerror = () => {
+      console.error('Image load error:', {
+        filename: filename,
+        url: url,
+        status: img.status
+      });
+      reject(`Failed to load ${filename} from: ${url}`);
+    };
+    img.src = url;
+  });
+}
+
+// ── Overlay transparency ─────────────────────────
+// If ig_overlay.png has REAL transparency, we don't need to convert black→transparent
+// This function is kept for backward compatibility
+function buildTransparentOverlay(img) {
+  const c = document.createElement('canvas');
+  c.width = 1254; c.height = 1254;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, 1254, 1254);
+  // If overlay already has proper alpha channel, no conversion needed
+  // Just return the canvas
+  return c;
+}
+
+// ── Status ────────────────────────────────────────
+function setStatus(msg, type = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+}
+
+// ── Main generate ─────────────────────────────────
+async function generate() {
+  setStatus('Loading card image...', '');
+  try {
+    // Resolve pack card
+    if (packTab === 'url' || !packCardImg) {
+      const url = normalizeUrl(document.getElementById('packCardUrl').value);
+      if (!url) throw 'Please enter a card URL or upload a file for the pack reveal';
+      packCardImg = await loadUrl(url);
+    }
+
+    // Resolve IG card — reuse pack card if IG URL empty
+    if (igTab === 'url' && !document.getElementById('igCardUrl').value.trim()) {
+      igCardImg = packCardImg;
+    } else if (igTab === 'url' || !igCardImg) {
+      const url = normalizeUrl(document.getElementById('igCardUrl').value);
+      if (!url) throw 'Please enter a card URL or upload a file for the IG crop';
+      igCardImg = await loadUrl(url);
+    }
+
+    setStatus('Rendering...', '');
+    await drawPack(packCardImg);
+    await drawIG(igCardImg);
+    setStatus('Done ✓ — both images ready to download', 'ok');
+  } catch(err) {
+    setStatus('⚠ ' + err, 'err');
+    console.error(err);
+  }
+}
+
+// ── Pack reveal ───────────────────────────────────
+async function drawPack(card) {
+  const canvas = document.getElementById('cPack');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 1254, 1254);
+  ctx.drawImage(await loadTemplate(selectedPack), 0, 0, 1254, 1254);
+  placeCard(ctx, card, PACK_CARD, 1254, 1254, 17);
+}
+
+// ── IG crop ───────────────────────────────────────
+async function drawIG(card) {
+  const canvas = document.getElementById('cIG');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 1254, 1254);
+
+  // Layer 1: gray base
+  ctx.drawImage(await loadTemplate('ig_base'), 0, 0, 1254, 1254);
+
+  // Layer 2: card at exact Figma coords
+  placeCard(ctx, card, IG_CARD, 1254, 1254);
+
+  // Layer 3: overlay with transparency
+  if (!overlayCanvas) {
+    const overlayImg = await loadTemplate('ig_overlay');
+    overlayCanvas = buildTransparentOverlay(overlayImg);
+  }
+  ctx.drawImage(overlayCanvas, 0, 0);
+
+  // Layer 4: price number
+  const val = document.getElementById('estVal').value || '0';
+  const priceText = '$' + val;
+
+  let fontSize = IG_PRICE.fontSize;
+  ctx.font = fontSize + 'px Impact';
+  while (ctx.measureText(priceText).width > IG_PRICE.maxW && fontSize > 60) {
+    fontSize -= 4;
+    ctx.font = fontSize + 'px Impact';
+  }
+
+  ctx.save();
+  ctx.font = fontSize + 'px Impact';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = '#000';
+  ctx.strokeText(priceText, IG_PRICE.x, IG_PRICE.baselineY);
+  ctx.fillStyle = '#fff';
+  ctx.fillText(priceText, IG_PRICE.x, IG_PRICE.baselineY);
+  ctx.restore();
+}
+
+// ── Card placement ────────────────────────────────
+function placeCard(ctx, card, slot, cW, cH, radius) {
+  const ca = card.width / card.height;
+  const sa = slot.w / slot.h;
+  let dw, dh;
+  if (ca > sa) { dh = slot.h; dw = dh * ca; }
+  else         { dw = slot.w; dh = dw / ca; }
+  const dx = slot.x + (slot.w - dw) / 2;
+  const dy = slot.y + (slot.h - dh) / 2;
+
+  const clipX = Math.max(slot.x, 0);
+  const clipY = Math.max(slot.y, 0);
+  const clipW = Math.min(slot.x + slot.w, cW) - clipX;
+  const clipH = Math.min(slot.y + slot.h, cH) - clipY;
+  const r = radius || 0;
+
+  ctx.save();
+  ctx.beginPath();
+  if (r > 0 && ctx.roundRect) {
+    ctx.roundRect(clipX, clipY, clipW, clipH, r);
+  } else if (r > 0) {
+    // Fallback for browsers without roundRect
+    ctx.moveTo(clipX + r, clipY);
+    ctx.lineTo(clipX + clipW - r, clipY);
+    ctx.arcTo(clipX + clipW, clipY, clipX + clipW, clipY + r, r);
+    ctx.lineTo(clipX + clipW, clipY + clipH - r);
+    ctx.arcTo(clipX + clipW, clipY + clipH, clipX + clipW - r, clipY + clipH, r);
+    ctx.lineTo(clipX + r, clipY + clipH);
+    ctx.arcTo(clipX, clipY + clipH, clipX, clipY + clipH - r, r);
+    ctx.lineTo(clipX, clipY + r);
+    ctx.arcTo(clipX, clipY, clipX + r, clipY, r);
+    ctx.closePath();
+  } else {
+    ctx.rect(clipX, clipY, clipW, clipH);
+  }
+  ctx.clip();
+  ctx.drawImage(card, dx, dy, dw, dh);
+  ctx.restore();
+}
+
+// ── Download ──────────────────────────────────────
+function dl(id, name) {
+  const a = document.createElement('a');
+  a.download = name + '.png';
+  a.href = document.getElementById(id).toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>

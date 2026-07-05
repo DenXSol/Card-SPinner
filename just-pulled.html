@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gacha Card Generator - Just Pulled</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: #fff; min-height: 100vh; padding: 0; }
+.nav-bar { background: #000; border-bottom: 1px solid #2a2a2a; padding: 0; }
+.nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; height: 70px; padding: 0 2rem; gap: 2rem; }
+.nav-tabs { display: flex; gap: 1rem; flex: 1; }
+.nav-tab { background: transparent; border: 1px solid #333; color: #888; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase; text-decoration: none; display: inline-block; transition: all 0.2s; letter-spacing: 0.05em; }
+.nav-tab:hover { border-color: #b3f000; color: #b3f000; }
+.nav-tab.active { border-color: #b3f000; color: #000; background: #b3f000; font-weight: 700; }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 1.5rem; color: #b3f000; letter-spacing: -0.5px; }
+.app { max-width: 960px; margin: 0 auto; padding: 2rem; }
+.panel { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.panel h2 { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.layer-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1.25rem; }
+.layer-row:last-child { margin-bottom: 0; }
+.layer-num { width: 28px; height: 28px; border-radius: 50%; background: #b3f000; color: #000; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.layer-body { flex: 1; }
+.layer-label { font-size: 13px; color: #aaa; margin-bottom: 6px; font-weight: 500; }
+.layer-sub { font-size: 11px; color: #555; margin-bottom: 6px; }
+label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+input[type=text], input[type=number] { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 14px; outline: none; transition: border 0.15s; }
+input:focus { border-color: #b3f000; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.mult-wrap { display: flex; align-items: center; gap: 8px; }
+.auto-badge { font-size: 10px; color: #b3f000; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.divider { border: none; border-top: 1px solid #2a2a2a; margin: 1.5rem 0; }
+.gen-btn { width: 100%; background: #b3f000; color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.gen-btn:hover { background: #c8f500; }
+.preview-wrap p { font-size: 11px; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+canvas { width: 100%; max-width: 420px; border-radius: 8px; border: 1px solid #2a2a2a; display: block; }
+.dl-btn { width: 100%; max-width: 420px; background: #111; border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: 13px; color: #b3f000; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: inherit; transition: all 0.15s; }
+.dl-btn:hover { background: #1a1a1a; border-color: #b3f000; }
+.status { font-size: 13px; color: #555; margin: 10px 0 6px; min-height: 18px; }
+.status.ok { color: #b3f000; }
+.status.err { color: #f05050; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <div class="nav-tabs">
+        <a href="spinner.html" class="nav-tab">🎰 Card Spinner</a>
+        <a href="card-generator.html" class="nav-tab">⚡ Card Generator</a>
+        <a href="just-pulled.html" class="nav-tab active">🃏 Just Pulled</a>
+      </div>
+    </div>
+  </nav>
+
+  <h1>🃏 Just Pulled Generator</h1>
+
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Background</div>
+    <div class="layer-row">
+      <div class="layer-num">1</div>
+      <div class="layer-body">
+        <div class="layer-label">JUST PULLED template</div>
+        <div class="layer-sub">Background is baked &amp; constant — never changes</div>
+        <div style="font-size:12px;color:#b3f000;">✓ Loading JP1.png from GitHub assets...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Card</div>
+    <div class="layer-row">
+      <div class="layer-num">2</div>
+      <div class="layer-body">
+        <div class="layer-label">Card image</div>
+        <div class="layer-sub">Paste the full Slack/GachaBot image URL — slab, label &amp; art all in one shot</div>
+        <input type="text" id="cardUrl" placeholder="https://imagedelivery.net/..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;">Numbers</div>
+    <div class="layer-row">
+      <div class="layer-num">3</div>
+      <div class="layer-body">
+        <div class="row3">
+          <div>
+            <label>Card price (pack cost)</label>
+            <input type="number" id="packPrice" value="699" min="0" step="0.01" oninput="recalc()" />
+          </div>
+          <div>
+            <label>Card worth (won)</label>
+            <input type="number" id="cardWorth" value="2102" min="0" step="0.01" oninput="recalc()" />
+          </div>
+          <div>
+            <label>Multiplier <span class="auto-badge" id="autoBadge">auto</span></label>
+            <div class="mult-wrap">
+              <input type="text" id="multiplier" value="3X" oninput="onMultEdit()" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+  <button class="gen-btn" onclick="generate()">⚡ Generate Just Pulled card</button>
+
+  <div class="panel" style="margin-top:1.5rem;">
+    <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;">Output</div>
+    <div class="preview-wrap">
+      <p>Just Pulled (1122 × 1402)</p>
+      <canvas id="cJP" width="1122" height="1402"></canvas>
+      <button class="dl-btn" onclick="dl('cJP','gacha-just-pulled')">↓ Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Configuration ────────────────────────────────
+const ASSET_BASE = 'https://raw.githubusercontent.com/DenXSol/Card-SPinner/main/assets';
+
+// Slot coords — pulled directly from the Figma frame (Frame 2147225648, 1122x1402)
+const CARD_SLOT = { x: 227.5, y: 428.86, w: 684.76, h: 1129.49, radius: 20 };
+
+// Text row — all elements share the same vertical center (y=313) in the 1122x1402 canvas
+const ROW_CENTER_Y = 313;
+const PRICE_X = 292;   // left edge, "card price" number
+const WORTH_X = 510;   // left edge, "card worth" number
+const MULT_X = 715;    // left edge, multiplier badge
+const ARROW_X1 = 427, ARROW_X2 = 493; // arrow spans this gap between price and worth
+
+const FONT_FAMILY = "'Space Grotesk', sans-serif";
+const PRICE_FONT_SIZE = 50;
+const MULT_FONT_SIZE = 60;
+const MULT_COLOR = '#e1ff19';
+
+let assetCache = {};
+let userEditedMult = false;
+
+function loadImg(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject('Failed to load image: ' + url);
+    img.src = url;
+  });
+}
+
+function loadTemplate(name) {
+  const url = `${ASSET_BASE}/backgrounds/${name}`;
+  if (assetCache[url]) return Promise.resolve(assetCache[url]);
+  return loadImg(url).then(img => { assetCache[url] = img; return img; });
+}
+
+function fmtMoney(n) {
+  n = Math.round(Number(n) || 0);
+  return '$' + n.toLocaleString('en-US');
+}
+
+function recalc() {
+  if (userEditedMult) return; // don't stomp a manual override
+  const price = parseFloat(document.getElementById('packPrice').value) || 0;
+  const worth = parseFloat(document.getElementById('cardWorth').value) || 0;
+  let mult = price > 0 ? Math.round(worth / price) : 0;
+  if (mult < 1) mult = 1;
+  document.getElementById('multiplier').value = mult + 'X';
+}
+
+function onMultEdit() {
+  userEditedMult = true;
+  document.getElementById('autoBadge').textContent = 'manual';
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + (type || '');
+}
+
+function placeCard(ctx, card, slot) {
+  const ca = card.width / card.height;
+  const sa = slot.w / slot.h;
+  let dw, dh;
+  if (ca > sa) { dh = slot.h; dw = dh * ca; }
+  else { dw = slot.w; dh = dw / ca; }
+  const dx = slot.x + (slot.w - dw) / 2;
+  const dy = slot.y + (slot.h - dh) / 2;
+  const r = slot.radius || 0;
+
+  ctx.save();
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(slot.x, slot.y, slot.w, slot.h, r);
+  else ctx.rect(slot.x, slot.y, slot.w, slot.h);
+  ctx.clip();
+  ctx.drawImage(card, dx, dy, dw, dh);
+  ctx.restore();
+}
+
+function drawArrow(ctx) {
+  ctx.save();
+  ctx.strokeStyle = '#ffffff';
+  ctx.fillStyle = '#ffffff';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  const headLen = 14;
+  ctx.beginPath();
+  ctx.moveTo(ARROW_X1, ROW_CENTER_Y);
+  ctx.lineTo(ARROW_X2 - headLen * 0.6, ROW_CENTER_Y);
+  ctx.stroke();
+  // arrowhead
+  ctx.beginPath();
+  ctx.moveTo(ARROW_X2, ROW_CENTER_Y);
+  ctx.lineTo(ARROW_X2 - headLen, ROW_CENTER_Y - headLen * 0.6);
+  ctx.lineTo(ARROW_X2 - headLen, ROW_CENTER_Y + headLen * 0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function fitText(ctx, text, maxWidth, startSize, weight) {
+  let size = startSize;
+  ctx.font = `${weight} ${size}px ${FONT_FAMILY}`;
+  while (ctx.measureText(text).width > maxWidth && size > 20) {
+    size -= 2;
+    ctx.font = `${weight} ${size}px ${FONT_FAMILY}`;
+  }
+  return size;
+}
+
+async function drawJustPulled() {
+  const canvas = document.getElementById('cJP');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 1122, 1402);
+
+  // 1. baked background (title, flares, GACHA logo)
+  ctx.drawImage(await loadTemplate('JP1.png'), 0, 0, 1122, 1402);
+
+  // 2. card image
+  const url = document.getElementById('cardUrl').value.trim();
+  if (!url) throw 'Please paste a card image URL';
+  const card = await loadImg(url);
+  placeCard(ctx, card, CARD_SLOT);
+
+  // 3. price text (left aligned at PRICE_X)
+  const priceText = fmtMoney(document.getElementById('packPrice').value);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `700 ${PRICE_FONT_SIZE}px ${FONT_FAMILY}`;
+  ctx.fillText(priceText, PRICE_X, ROW_CENTER_Y);
+
+  // 4. arrow
+  drawArrow(ctx);
+
+  // 5. worth text — shrink to fit if it would collide with the multiplier badge
+  const worthText = fmtMoney(document.getElementById('cardWorth').value);
+  const maxWorthWidth = MULT_X - WORTH_X - 20;
+  const worthSize = fitText(ctx, worthText, maxWorthWidth, PRICE_FONT_SIZE, 700);
+  ctx.font = `700 ${worthSize}px ${FONT_FAMILY}`;
+  ctx.fillText(worthText, WORTH_X, ROW_CENTER_Y);
+
+  // 6. multiplier badge
+  const multText = (document.getElementById('multiplier').value || '1X').toUpperCase();
+  ctx.font = `700 ${MULT_FONT_SIZE}px ${FONT_FAMILY}`;
+  ctx.save();
+  ctx.shadowColor = MULT_COLOR;
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = MULT_COLOR;
+  ctx.fillText(multText, MULT_X, ROW_CENTER_Y);
+  ctx.restore();
+}
+
+async function generate() {
+  setStatus('Rendering...', '');
+  try {
+    await drawJustPulled();
+    setStatus('Done ✓ — ready to download', 'ok');
+  } catch (err) {
+    setStatus('⚠ ' + err, 'err');
+    console.error(err);
+  }
+}
+
+function dl(id, name) {
+  const a = document.createElement('a');
+  a.download = name + '.png';
+  a.href = document.getElementById(id).toDataURL('image/png');
+  a.click();
+}
+
+recalc();
+</script>
+</body>
+</html>
